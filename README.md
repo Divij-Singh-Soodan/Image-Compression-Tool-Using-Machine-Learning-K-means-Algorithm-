@@ -1,35 +1,117 @@
-# Image-Compression-Tool-Using-Machine-Learning-K-means-Algorithm-
+# ChromaCompress
 
+Interactive image compression and color quantization powered by **unsupervised K-Means clustering** — implementing the exact algorithm from the Stanford / Coursera Unsupervised Learning assignment.
 
+Reduce any photo to *K* representative colors, inspect the centroid palette, and compare before/after with a split slider. Theoretical bit-reduction metrics match the course notes:
 
-How the ML pipeline works:
+$$
+\begin{aligned}
+\text{uncompressed} &= H \times W \times 24 \\
+\text{compressed} &= (K \times 24) + (H \times W \times \lceil\log_2 K\rceil)
+\end{aligned}
+$$
 
-Every pixel is represented as a 3D coordinate in RGB space.
+## Project structure
 
-The K-Means algorithm automatically discovers the top $K$ most representative cluster centroids (colors) across the image.
+```
+ChromaCompress/
+├── backend/
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── ml_engine.py       # Stanford K-Means + compress pipeline
+│   │   ├── schemas.py
+│   │   └── main.py
+│   ├── requirements.txt
+│   └── run.py
+├── frontend/
+│   ├── index.html
+│   ├── package.json
+│   ├── vite.config.js
+│   ├── tailwind.config.js
+│   ├── postcss.config.js
+│   └── src/
+│       ├── App.jsx
+│       ├── index.css
+│       ├── main.jsx
+│       └── components/
+└── README.md
+```
 
-By replacing thousands of individual pixel colors with their closest centroid indices, the image can be represented using a compact color palette—significantly reducing the theoretical bit footprint while preserving the core visual structure.
+## Prerequisites
 
+- Python 3.10+
+- Node.js 18+
 
+## Setup & run
 
+### 1. Backend (FastAPI)
 
+```bash
+cd backend
+python -m venv .venv
 
-The Tech Stack:
+# Windows PowerShell
+.\.venv\Scripts\Activate.ps1
 
-ML Engine: Pure NumPy (vectorized distance calculations, iterative centroid reassignment, and quantization. Reference from Stanford University Unsupervised ML Course)
+# macOS / Linux
+# source .venv/bin/activate
 
+pip install -r requirements.txt
+python run.py
+```
 
+API listens on **http://127.0.0.1:8000**  
+Docs: http://127.0.0.1:8000/docs
 
-Backend: FastAPI, Pillow (PIL), and Uvicorn for lightweight, asynchronous image handling and API responses
+### 2. Frontend (Vite + React)
 
+Open a **second** terminal:
 
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-Frontend: React (Vite) and Tailwind CSS with an interactive before/after split slider, compression metrics, and dynamic palette extraction
+App opens at **http://localhost:5173**
 
+### Run both simultaneously
 
+**Terminal A — API**
 
-Taking a core mathematical algorithm from theory to a responsive full-stack application was a great exercise in understanding both algorithmic bottlenecks and end-to-end software integration.
+```bash
+cd backend
+.\.venv\Scripts\Activate.ps1   # or: source .venv/bin/activate
+python run.py
+```
 
+**Terminal B — UI**
 
+```bash
+cd frontend
+npm run dev
+```
 
-IDEs Used: Visual Studio Code, Cursor 
+## API
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/health` | Health check |
+| `POST` | `/api/compress` | Multipart form: `file`, `k` (2–64), `max_iters` (5–20) |
+
+Response JSON includes Base64 PNG data URLs for original & compressed images, the centroid `palette`, and `metrics` (`original_bits`, `compressed_bits`, `compression_ratio`, `percent_saved`, `processing_time_ms`).
+
+## ML engine (assignment parity)
+
+| Function | Behavior |
+|----------|----------|
+| `kMeans_init_centroids` | `np.random.permutation` → first *K* examples |
+| `find_closest_centroids` | Nested loop + `np.linalg.norm` / `np.argmin` (lab) |
+| `find_closest_centroids_vectorized` | Broadcasted norms for realtime uploads |
+| `compute_centroids` | Mean per cluster; empty clusters re-sampled |
+| `run_kMeans` | Alternating assignment & update for `max_iters` |
+| `compress_image_pipeline` | PIL RGB → resize → normalize → K-Means → Base64 PNG |
+
+## License
+
+Educational / portfolio use. Algorithm structure follows the Stanford Unsupervised Learning lab.

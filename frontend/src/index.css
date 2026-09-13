@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(34, 211, 238, 0.12), transparent),
+    radial-gradient(ellipse 60% 40% at 100% 50%, rgba(167, 139, 250, 0.06), transparent),
+    #09090b;
+}
+
+@layer utilities {
+  .slider-accent {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    border-radius: 9999px;
+    background: #3f3f46;
+    outline: none;
+  }
+
+  .slider-accent::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 9999px;
+    background: #22d3ee;
+    cursor: pointer;
+    border: 2px solid #09090b;
+    box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.25);
+  }
+
+  .slider-accent::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 9999px;
+    background: #22d3ee;
+    cursor: pointer;
+    border: 2px solid #09090b;
+  }
+}
